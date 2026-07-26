@@ -157,13 +157,23 @@ data.data.date.hijri.month.ar+" "+
 data.data.date.hijri.year+" هـ";
 
 
+function convertTime(time){
+    let [hour, minute] = time.split(":");
+    hour = parseInt(hour);
 
-document.getElementById("Fajr").innerHTML=data.data.timings.Fajr;
-document.getElementById("Sunrise").innerHTML=data.data.timings.Sunrise;
-document.getElementById("Dhuhr").innerHTML=data.data.timings.Dhuhr;
-document.getElementById("Asr").innerHTML=data.data.timings.Asr;
-document.getElementById("Maghrib").innerHTML=data.data.timings.Maghrib;
-document.getElementById("Isha").innerHTML=data.data.timings.Isha;
+    if(hour > 12){
+        hour = hour - 12;
+    }
+
+    return hour + ":" + minute;
+}
+
+document.getElementById("Fajr").innerHTML=convertTime(data.data.timings.Fajr);
+document.getElementById("Sunrise").innerHTML=convertTime(data.data.timings.Sunrise);
+document.getElementById("Dhuhr").innerHTML=convertTime(data.data.timings.Dhuhr);
+document.getElementById("Asr").innerHTML=convertTime(data.data.timings.Asr);
+document.getElementById("Maghrib").innerHTML=convertTime(data.data.timings.Maghrib);
+document.getElementById("Isha").innerHTML=convertTime(data.data.timings.Isha);
 
 
 
