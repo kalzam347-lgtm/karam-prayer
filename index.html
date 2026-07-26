@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="google-site-verification" content="rrN_3dwy6XErcUPz5V-M0-27JvPjMUPpXAyLs3tFosE" />
+
 <title>مواقيت الصلاة - الأردن</title>
 
 <style>
@@ -76,13 +76,13 @@ margin-top:20px;
 
 </head>
 
+
 <body>
 
 
 <div class="container">
 
 <h1>🕌 مواقيت الصلاة</h1>
-
 
 <div id="date">
 جاري التحميل...
@@ -143,11 +143,45 @@ margin-top:20px;
 let prayers={};
 
 
-fetch("https://api.aladhan.com/v1/timingsByCity?city=Irbid&country=Jordan&method=4")
+// جلب مواقيت إربد
+fetch("https://api.aladhan.com/v1/timings?latitude=32.5556&longitude=35.8500&method=4&school=0")
+
 .then(res=>res.json())
 
 .then(data=>{
 
+
+// إضافة فرق بسيط لمطابقة جوجل في إربد
+function addMinutes(time,add){
+
+let parts=time.split(":");
+
+let h=parseInt(parts[0]);
+let m=parseInt(parts[1]);
+
+m+=add;
+
+
+if(m>=60){
+m-=60;
+h++;
+}
+
+return String(h).padStart(2,"0")+":"+String(m).padStart(2,"0");
+
+}
+
+
+data.data.timings.Maghrib =
+addMinutes(data.data.timings.Maghrib,4);
+
+
+data.data.timings.Isha =
+addMinutes(data.data.timings.Isha,5);
+
+
+
+// التاريخ
 
 document.getElementById("date").innerHTML =
 data.data.date.readable+"<br>"+
@@ -156,27 +190,51 @@ data.data.date.hijri.month.ar+" "+
 data.data.date.hijri.year+" هـ";
 
 
+
+// تحويل الوقت
+
 function convertTime(time){
-    let [hour, minute] = time.split(":");
-    hour = parseInt(hour);
 
-    if(hour > 12){
-        hour = hour - 12;
-    }
+let [hour,minute]=time.split(":");
 
-    return hour + ":" + minute;
+hour=parseInt(hour);
+
+
+if(hour>12){
+hour-=12;
 }
 
-document.getElementById("Fajr").innerHTML=convertTime(data.data.timings.Fajr);
-document.getElementById("Sunrise").innerHTML=convertTime(data.data.timings.Sunrise);
-document.getElementById("Dhuhr").innerHTML=convertTime(data.data.timings.Dhuhr);
-document.getElementById("Asr").innerHTML=convertTime(data.data.timings.Asr);
-document.getElementById("Maghrib").innerHTML=convertTime(data.data.timings.Maghrib);
-document.getElementById("Isha").innerHTML=convertTime(data.data.timings.Isha);
+
+return hour+":"+minute;
+
+}
 
 
 
-// ترتيب العداد
+// عرض الأوقات
+
+document.getElementById("Fajr").innerHTML=
+convertTime(data.data.timings.Fajr);
+
+document.getElementById("Sunrise").innerHTML=
+convertTime(data.data.timings.Sunrise);
+
+document.getElementById("Dhuhr").innerHTML=
+convertTime(data.data.timings.Dhuhr);
+
+document.getElementById("Asr").innerHTML=
+convertTime(data.data.timings.Asr);
+
+document.getElementById("Maghrib").innerHTML=
+convertTime(data.data.timings.Maghrib);
+
+document.getElementById("Isha").innerHTML=
+convertTime(data.data.timings.Isha);
+
+
+
+// أوقات العداد
+
 prayers={
 
 "الشروق":data.data.timings.Sunrise,
@@ -198,13 +256,17 @@ prayers={
 function countdown(){
 
 
+if(Object.keys(prayers).length===0)
+return;
+
+
 let now=new Date();
 
 let next=null;
+
 let name="";
 
 
-// ترتيب الصلوات
 let order=[
 "الشروق",
 "الظهر",
@@ -238,14 +300,11 @@ break;
 
 }
 
-
 }
 
 
 
-// إذا انتهى اليوم ينتظر الفجر
 if(next==null){
-
 
 let t=prayers["الفجر"].split(":");
 
@@ -253,13 +312,13 @@ let t=prayers["الفجر"].split(":");
 next=new Date();
 
 next.setDate(next.getDate()+1);
+
 next.setHours(t[0]);
 next.setMinutes(t[1]);
 next.setSeconds(0);
 
 
 name="الفجر";
-
 
 }
 
@@ -285,7 +344,6 @@ s+" ثانية";
 
 
 }
-
 
 
 setInterval(countdown,1000);
