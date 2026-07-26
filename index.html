@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>مواقيت الصلاة - الأردن</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Tahoma;
+}
+
+body{
+background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+color:white;
+}
+
+.container{
+background:rgba(255,255,255,0.1);
+padding:30px;
+border-radius:20px;
+width:380px;
+text-align:center;
+box-shadow:0 0 20px #000;
+}
+
+h1{
+margin-bottom:15px;
+}
+
+#date{
+margin-bottom:20px;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+}
+
+td{
+padding:12px;
+border-bottom:1px solid #ffffff40;
+}
+
+.name{
+text-align:right;
+font-weight:bold;
+}
+
+.time{
+text-align:left;
+color:#ffd54f;
+font-weight:bold;
+}
+
+#countdown{
+margin-top:20px;
+color:#ffd54f;
+}
+
+.footer{
+margin-top:20px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+
+<div class="container">
+
+<h1>🕌 مواقيت الصلاة</h1>
+
+
+<div id="date">
+جاري التحميل...
+</div>
+
+
+<table>
+
+<tr>
+<td class="name">الفجر</td>
+<td class="time" id="Fajr"></td>
+</tr>
+
+<tr>
+<td class="name">الشروق</td>
+<td class="time" id="Sunrise"></td>
+</tr>
+
+<tr>
+<td class="name">الظهر</td>
+<td class="time" id="Dhuhr"></td>
+</tr>
+
+<tr>
+<td class="name">العصر</td>
+<td class="time" id="Asr"></td>
+</tr>
+
+<tr>
+<td class="name">المغرب</td>
+<td class="time" id="Maghrib"></td>
+</tr>
+
+<tr>
+<td class="name">العشاء</td>
+<td class="time" id="Isha"></td>
+</tr>
+
+</table>
+
+
+<h2 id="countdown">
+⏳ جاري حساب الصلاة القادمة...
+</h2>
+
+
+<div class="footer">
+🇯🇴 الأردن - عمّان
+</div>
+
+
+</div>
+
+
+
+<script>
+
+let prayers={};
+
+
+fetch("https://api.aladhan.com/v1/timingsByCity?city=Amman&country=Jordan&method=4")
+
+.then(res=>res.json())
+
+.then(data=>{
+
+
+document.getElementById("date").innerHTML =
+data.data.date.readable+"<br>"+
+data.data.date.hijri.day+" "+
+data.data.date.hijri.month.ar+" "+
+data.data.date.hijri.year+" هـ";
+
+
+
+document.getElementById("Fajr").innerHTML=data.data.timings.Fajr;
+document.getElementById("Sunrise").innerHTML=data.data.timings.Sunrise;
+document.getElementById("Dhuhr").innerHTML=data.data.timings.Dhuhr;
+document.getElementById("Asr").innerHTML=data.data.timings.Asr;
+document.getElementById("Maghrib").innerHTML=data.data.timings.Maghrib;
+document.getElementById("Isha").innerHTML=data.data.timings.Isha;
+
+
+
+// ترتيب العداد
+prayers={
+
+"الشروق":data.data.timings.Sunrise,
+"الظهر":data.data.timings.Dhuhr,
+"العصر":data.data.timings.Asr,
+"المغرب":data.data.timings.Maghrib,
+"العشاء":data.data.timings.Isha,
+"الفجر":data.data.timings.Fajr
+
+};
+
+
+});
+
+
+
+
+
+function countdown(){
+
+
+let now=new Date();
+
+let next=null;
+let name="";
+
+
+// ترتيب الصلوات
+let order=[
+"الشروق",
+"الظهر",
+"العصر",
+"المغرب",
+"العشاء",
+"الفجر"
+];
+
+
+
+for(let p of order){
+
+
+let t=prayers[p].split(":");
+
+
+let time=new Date();
+
+time.setHours(t[0]);
+time.setMinutes(t[1]);
+time.setSeconds(0);
+
+
+
+if(time>now){
+
+next=time;
+name=p;
+break;
+
+}
+
+
+}
+
+
+
+// إذا انتهى اليوم ينتظر الفجر
+if(next==null){
+
+
+let t=prayers["الفجر"].split(":");
+
+
+next=new Date();
+
+next.setDate(next.getDate()+1);
+next.setHours(t[0]);
+next.setMinutes(t[1]);
+next.setSeconds(0);
+
+
+name="الفجر";
+
+
+}
+
+
+
+let diff=next-now;
+
+
+let h=Math.floor(diff/3600000);
+
+let m=Math.floor((diff%3600000)/60000);
+
+let s=Math.floor((diff%60000)/1000);
+
+
+
+document.getElementById("countdown").innerHTML=
+
+"⏳ باقي على صلاة "+name+"<br>"+
+h+" ساعة "+
+m+" دقيقة "+
+s+" ثانية";
+
+
+}
+
+
+
+setInterval(countdown,1000);
+
+
+</script>
+
+
+</body>
+</html>
