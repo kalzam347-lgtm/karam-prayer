@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>مواقيت الصلاة - الأردن</title>
+<title>مواقيت الصلاة - اربد</title>
 
 <style>
 
@@ -79,7 +79,6 @@ margin-top:20px;
 
 <body>
 
-
 <div class="container">
 
 <h1>🕌 مواقيت الصلاة</h1>
@@ -91,35 +90,17 @@ margin-top:20px;
 
 <table>
 
-<tr>
-<td class="name">الفجر</td>
-<td class="time" id="Fajr"></td>
-</tr>
+<tr><td class="name">الفجر</td><td class="time" id="Fajr"></td></tr>
 
-<tr>
-<td class="name">الشروق</td>
-<td class="time" id="Sunrise"></td>
-</tr>
+<tr><td class="name">الشروق</td><td class="time" id="Sunrise"></td></tr>
 
-<tr>
-<td class="name">الظهر</td>
-<td class="time" id="Dhuhr"></td>
-</tr>
+<tr><td class="name">الظهر</td><td class="time" id="Dhuhr"></td></tr>
 
-<tr>
-<td class="name">العصر</td>
-<td class="time" id="Asr"></td>
-</tr>
+<tr><td class="name">العصر</td><td class="time" id="Asr"></td></tr>
 
-<tr>
-<td class="name">المغرب</td>
-<td class="time" id="Maghrib"></td>
-</tr>
+<tr><td class="name">المغرب</td><td class="time" id="Maghrib"></td></tr>
 
-<tr>
-<td class="name">العشاء</td>
-<td class="time" id="Isha"></td>
-</tr>
+<tr><td class="name">العشاء</td><td class="time" id="Isha"></td></tr>
 
 </table>
 
@@ -143,7 +124,8 @@ margin-top:20px;
 let prayers={};
 
 
-// جلب مواقيت إربد
+// جلب مواقيت الصلاة
+
 fetch("https://api.aladhan.com/v1/timings?latitude=32.5556&longitude=35.8500&method=4&school=0")
 
 .then(res=>res.json())
@@ -151,7 +133,6 @@ fetch("https://api.aladhan.com/v1/timings?latitude=32.5556&longitude=35.8500&met
 .then(data=>{
 
 
-// إضافة فرق بسيط لمطابقة جوجل في إربد
 function addMinutes(time,add){
 
 let parts=time.split(":");
@@ -160,7 +141,6 @@ let h=parseInt(parts[0]);
 let m=parseInt(parts[1]);
 
 m+=add;
-
 
 if(m>=60){
 m-=60;
@@ -172,9 +152,13 @@ return String(h).padStart(2,"0")+":"+String(m).padStart(2,"0");
 }
 
 
+// تعديل بسيط لمطابقة جوجل
+
+data.data.timings.Asr =
+addMinutes(data.data.timings.Asr,-1);
+
 data.data.timings.Maghrib =
 addMinutes(data.data.timings.Maghrib,4);
-
 
 data.data.timings.Isha =
 addMinutes(data.data.timings.Isha,5);
@@ -195,17 +179,15 @@ data.data.date.hijri.year+" هـ";
 
 function convertTime(time){
 
-let [hour,minute]=time.split(":");
+let [h,m]=time.split(":");
 
-hour=parseInt(hour);
+h=parseInt(h);
 
-
-if(hour>12){
-hour-=12;
+if(h>12){
+h-=12;
 }
 
-
-return hour+":"+minute;
+return h+":"+m;
 
 }
 
@@ -213,27 +195,21 @@ return hour+":"+minute;
 
 // عرض الأوقات
 
-document.getElementById("Fajr").innerHTML=
-convertTime(data.data.timings.Fajr);
+Fajr.innerHTML=convertTime(data.data.timings.Fajr);
 
-document.getElementById("Sunrise").innerHTML=
-convertTime(data.data.timings.Sunrise);
+Sunrise.innerHTML=convertTime(data.data.timings.Sunrise);
 
-document.getElementById("Dhuhr").innerHTML=
-convertTime(data.data.timings.Dhuhr);
+Dhuhr.innerHTML=convertTime(data.data.timings.Dhuhr);
 
-document.getElementById("Asr").innerHTML=
-convertTime(data.data.timings.Asr);
+Asr.innerHTML=convertTime(data.data.timings.Asr);
 
-document.getElementById("Maghrib").innerHTML=
-convertTime(data.data.timings.Maghrib);
+Maghrib.innerHTML=convertTime(data.data.timings.Maghrib);
 
-document.getElementById("Isha").innerHTML=
-convertTime(data.data.timings.Isha);
+Isha.innerHTML=convertTime(data.data.timings.Isha);
 
 
 
-// أوقات العداد
+// للعداد
 
 prayers={
 
@@ -277,19 +253,15 @@ let order=[
 ];
 
 
-
 for(let p of order){
 
-
 let t=prayers[p].split(":");
-
 
 let time=new Date();
 
 time.setHours(t[0]);
 time.setMinutes(t[1]);
 time.setSeconds(0);
-
 
 
 if(time>now){
@@ -303,11 +275,9 @@ break;
 }
 
 
-
 if(next==null){
 
 let t=prayers["الفجر"].split(":");
-
 
 next=new Date();
 
@@ -317,11 +287,9 @@ next.setHours(t[0]);
 next.setMinutes(t[1]);
 next.setSeconds(0);
 
-
 name="الفجر";
 
 }
-
 
 
 let diff=next-now;
@@ -350,7 +318,6 @@ setInterval(countdown,1000);
 
 
 </script>
-
 
 </body>
 </html>
